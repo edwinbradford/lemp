@@ -1,15 +1,7 @@
-# Exclude fork SSL certificates
+# Exclude SSL certificates
 **/*.cert
 **/*.crt
 **/*.csr
 **/*.key
 **/*.pem
-
-# Exclude fork SSL configuration
-**/curl.localhost.ext
-
-# Exempt Upstream SSL certificates
-!**/my_wpress_site.cert
-!**/my_wpress_site.csr
-!**/my_wpress_site.key
-!**/privkey.pem
+**/*.ext
