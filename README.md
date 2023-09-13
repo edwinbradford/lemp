@@ -5,16 +5,19 @@ Fork of Ron Amosa's dockerized wordpress setup with an NGINX reverse-proxy front
 
 There are three major changes from the original project.
 
-1. The original project has no certificate authority or instructions to create one without which the cerfificates can't be used so they are deleted from the project and replaced by a link to step by step instructions explaining how to generate SSL certificates for local development.
-2. The Nginx `default.conf` configuration had deprecated syntax preventing Nginx from running which is removed.
-3. The Docker Compose wordpress service has a simple modification that enables support for WordPress Site Health tests introduced in WordPress 5.2.
+1. The original project has no local certificate authority or any instructions on how to create one without which its cerfificates can't be used so the certificates and shell script to generate them are replaced in this fork by a `README.md` in the `certs` directory containing a link to a guide explaining how to generate SSL certificates for local development.
+2. The Nginx `default.conf` configuration has deprecated syntax preventing Nginx from running which is resolved in this fork.
+3. The Docker Compose wordpress service has a small modification that prevents WordPress Site Health tests introduced in WordPress 5.2 from reporting critical errors.
 
 ## Pre-requisites
 * docker installed locally
 * docker-compose installed locally
 
 ## Setup
-Follow the instructions from the website linked to in the `README.md` in the `certs` directory to create a local certificate authority and certificates, if you choose to use different filenames to those below you will need to update the references in Docker Compose and Nginx. You should end up with six files, none of which should really be stored in GitHub:
+Follow the instructions from the website linked to in the `README.md` in the `certs` directory to create a local certificate authority and certificates, if you choose to use different filenames to those below you will need to update the references in Docker Compose and Nginx.
+
+On completing the guide you should end up with the six files listed below for which there are `*.example` placeholders in the relevant directories where they should be saved. Note that these `*.example` files are just empty placeholders and won't work, you need to follow the guide.
+
    * my_wpress_site.crt
    * my_wpress_site.csr
    * my_wpress_site.ext
@@ -22,13 +25,15 @@ Follow the instructions from the website linked to in the `README.md` in the `ce
    * myCA.key
    * myCA.pem
 
-1. Copy the `certs/my_wpress_site.crt` and `certs/my_wpress_site.key` to `nginx/ssl/`, the file `my_wpress_site.crt` replaces `my_wpress_site.cert` from the original project.
-2. Run `docker-compose up --detach` and if one or more of the containers doesn't run look at its logs for the error.
+Once you have completed the guide and installed the certificate authorities in your host OS then:
+
+1. Copy the `certs/my_wpress_site.crt` and `certs/my_wpress_site.key` to `nginx/ssl/`, note that the file `my_wpress_site.crt` replaces `my_wpress_site.cert` from the original project.
+2. To access WordPress run `docker-compose up --detach` and if one or more of the containers doesn't run look at its logs for errors.
 
 ## Setup Wordpress
-The default hostname `www.mywordpress.local` from the original project is changed to `wordpress.localhost`, 'www' is largely deprecated now and the top level domain `.local` is not reserved for local development whilst '.localhost' is.
+The default hostname `www.mywordpress.local` in the original project is renamed to `wordpress.localhost` in this fork, 'www' is largely deprecated and the top level domain `.local` is not reserved for local development whilst '.localhost' is.
 
-You will need to add your hostname e.g. `wordpress.localhost` to your system hosts file. In my case that means adding it to Windows where my browser runs and Ubuntu in [WSL2](https://learn.microsoft.com/en-us/windows/wsl/) where I run Docker.
+You will need to add your hostname e.g. `wordpress.localhost` to your system hosts file. In my case that means adding it to the Windows hosts file where my browser runs and the Ubuntu hosts file in [WSL2](https://learn.microsoft.com/en-us/windows/wsl/) where I run Docker.
 ```
 127.0.0.1 wordpress.localhost
 ```
