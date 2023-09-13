@@ -1,52 +1,64 @@
 # Docker WordPress, NGINX+SSL, MySQL Database.
 
 ## Description
-A quick example of dockerized wordpress setup with an NGINX reverse-proxy frontend doing the SSL termination, and a standard MySQL database backend.
+Fork of Ron Amosa's dockerized wordpress setup with an NGINX reverse-proxy frontend doing the SSL termination, and a standard MySQL database backend.
+
+There are three major changes from the original project.
+
+1. The original project has no certificate authority or instructions to create one without which the cerfificates can't be used so they are deleted from the project and replaced by a link to step by step instructions explaining how to generate SSL certificates for local development.
+2. The Nginx `default.conf` configuration had deprecated syntax preventing Nginx from running which is removed.
+3. The Docker Compose wordpress service has a simple modification that enables support for WordPress Site Health tests introduced in WordPress 5.2.
 
 ## Pre-requisites
 * docker installed locally
 * docker-compose installed locally
 
 ## Setup
-You'll need to do a few things to get this up & running on your local environment.
+Follow the instructions from the website linked to in the `README.md` in the `certs` directory to create a local certificate authority and certificates, if you choose to use different filenames to those below you will need to update the references in Docker Compose and Nginx. You should end up with six files, none of which should really be stored in GitHub:
+   * my_wpress_site.crt
+   * my_wpress_site.csr
+   * my_wpress_site.ext
+   * my_wpress_site.key
+   * myCA.key
+   * myCA.pem
 
-1. create your certs by going into 'certs/' and running `certs.sh`.
-2. copy the `certs/whateveryoursiteis.cert` and `certs/whateveryoursiteis.key` to 'nginx/ssl/'.
-3. run `docker-compose up` if you want to see all the start-up logs
-4. or `docker-compose up -d` if you want to background.
+1. Copy the `certs/my_wpress_site.crt` and `certs/my_wpress_site.key` to `nginx/ssl/`, the file `my_wpress_site.crt` replaces `my_wpress_site.cert` from the original project.
+2. Run `docker-compose up --detach` and if one or more of the containers doesn't run look at its logs for the error.
 
 ## Setup Wordpress
-As this was a local setup for me, the server_name of 'www.mywordpress.local' was just an entry in my local /etc/hosts.
+The default hostname `www.mywordpress.local` from the original project is changed to `wordpress.localhost`, 'www' is largely deprecated now and the top level domain `.local` is not reserved for local development whilst '.localhost' is.
+
+You will need to add your hostname e.g. `wordpress.localhost` to your system hosts file. In my case that means adding it to Windows where my browser runs and Ubuntu in [WSL2](https://learn.microsoft.com/en-us/windows/wsl/) where I run Docker.
 ```
-127.0.0.1 www.mywordpress.local
+127.0.0.1 wordpress.localhost
 ```
 
-* open a browser page to https://www.whateveryoursiteis.com and you should be greeted (if this is the first time running) with an page asking you to install wordpress.
+If all went well you should be able to open a browser at https://wordpress.localhost and you should be greeted (if this is the first time running) with a page asking you to install wordpress.
 
 ## Key Points
+The following node in the wordpress service of Docker Compose resolves failing WordPress Site Health tests which make loopback requests to localhost inside the Docker wordpress service instead of localhost on the host and therefore through the reverse proxy.
+```
+extra_hosts:
+- wordpress.localhost:172.17.0.1
+```
 
-this 'wordpress'
+In the Nginx proxy pass directive, 'wordpress' refers to the name of your wordpress service in your docker-compose.yml file:
 ```
 proxy_pass http://wordpress;
 ```
-refers to the wordpress service in your docker-compose.yml file.
 
-this part in your default.conf:
+The following Nginx directives configures WordPress behind a reverse proxy:
 ```
-        proxy_set_header      Host $host;
-        proxy_set_header      X-Real-IP $remote_addr;
-        proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header      X-Forwarded-Host $server_name;
-        proxy_set_header      X-Forwarded-Proto https;
+proxy_set_header      Host $host;
+proxy_set_header      X-Real-IP $remote_addr;
+proxy_set_header      X-Forwarded-For $proxy_add_x_forwarded_for;
+proxy_set_header      X-Forwarded-Host $server_name;
+proxy_set_header      X-Forwarded-Proto https;
+```
 
-```
-helps this part in your wp-config.php to work:
+The following conditional in your `wp-config.php` references the Nginx `X-Forwarded-Proto` header above so WordPress can determine SSL requests behind a reverse proxy:
 ```
 if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
         $_SERVER['HTTPS'] = 'on';
 }
 ```
-this is where we're trying to force HTTPS at all times. The 301 redirect in default.conf for requests to port 80 also helps.
-
-## Footnotes
-obviously get some proper SSL certs for your own site, but this is a good miniature model of how the docker pieces fit together.
