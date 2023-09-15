@@ -1,10 +1,11 @@
+name: wnsm
 services:
   db:
     image: mysql:5.7
-    container_name: wp_mysql
+    container_name: mysql
     restart: always
     volumes:
-      - mysql:/var/lib/mysql
+      - wnsm_db_data:/var/lib/mysql
     environment:
       MYSQL_DATABASE: rds_mysql
       MYSQL_USER: wpress
@@ -18,12 +19,12 @@ services:
     depends_on:
       - db
     image: wordpress:latest
-    container_name: wp_site
+    container_name: wordpress
     restart: unless-stopped
     extra_hosts:
       - wordpress.localhost:172.17.0.1
     volumes:
-      - wordpress:/var/www/html/
+      - wnsm_wp_data:/var/www/html/
     environment:
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wpress
@@ -34,7 +35,7 @@ services:
 
   nginx:
     image: nginx:latest
-    container_name: wp_nginx
+    container_name: nginx
     restart: unless-stopped
     depends_on:
       - wordpress
@@ -50,9 +51,9 @@ services:
       - nginx
 
 volumes:
-  mysql:
+  wnsm_db_data:
     external: true
-  wordpress:
+  wnsm_wp_data:
     external: true
 
 networks:
