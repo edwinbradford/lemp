@@ -1,32 +1,37 @@
 name: wnsm
 services:
-  db:
-    image: mysql:5.7
-    container_name: mysql
+  mariadb:
+    image: mariadb:11.1.2-jammy
+    container_name: mariadb
     restart: always
+    expose:
+      - 3306
     volumes:
       - wnsm_db_data:/var/lib/mysql
     environment:
-      MYSQL_DATABASE: rds_mysql
-      MYSQL_USER: wpress
-      MYSQL_PASSWORD: wpress_247x
-      MYSQL_ROOT_PASSWORD: root_wpress_247x
+      MARIADB_DATABASE: rds_mysql
+      MARIADB_USER: wpress
+      MARIADB_PASSWORD: wpress_247x
+      MARIADB_ROOT_PASSWORD: root_wpress_247x
     networks:
       - nginx
 
 
   wordpress:
     depends_on:
-      - db
+      - mariadb
     image: wordpress:6.3.1-php8.0
     container_name: wordpress
     restart: unless-stopped
+    expose:
+      - 80
+      - 443
     extra_hosts:
       - wordpress.localhost:172.17.0.1
     volumes:
       - wnsm_wp_data:/var/www/html/
     environment:
-      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_USER: wpress
       WORDPRESS_DB_PASSWORD: wpress_247x
       WORDPRESS_DB_NAME: rds_mysql
