@@ -39,7 +39,7 @@ services:
       - nginx
 
   nginx:
-    image: nginx:latest
+    image: nginx:1.25.2
     container_name: nginx
     restart: unless-stopped
     depends_on:
