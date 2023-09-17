@@ -1,4 +1,5 @@
 name: wnsm
+
 services:
   mariadb:
     image: mariadb:11.1.2-jammy
@@ -16,7 +17,6 @@ services:
     networks:
       - nginx
 
-
   wordpress:
     depends_on:
       - mariadb
@@ -28,8 +28,6 @@ services:
       - 443
     extra_hosts:
       - wordpress.localhost:172.17.0.1
-    volumes:
-      - wnsm_wp_data:/var/www/html/
     environment:
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_USER: wpress
@@ -57,8 +55,6 @@ services:
 
 volumes:
   wnsm_db_data:
-    external: true
-  wnsm_wp_data:
     external: true
 
 networks:
