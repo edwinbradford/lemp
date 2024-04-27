@@ -36,32 +36,28 @@ Once you have completed the guide, installed the certificate authorities in your
 The default hostname `www.mywordpress.local` in the original project is renamed to `wordpress.localhost` in this fork, 'www' is largely deprecated and the top level domain `.local` is not reserved for local development whereas '.localhost' is.
 
 You will need to add your hostname e.g. `wordpress.localhost` to your system hosts file. In my case that means adding it to the Windows hosts file where my browser runs and the Ubuntu hosts file in [WSL2](https://learn.microsoft.com/en-us/windows/wsl/) where I run Docker.
-```
-127.0.0.1 wordpress.localhost
-```
+
+    127.0.0.1 wordpress.localhost
 
 If all went well you should be able to open a browser at https://wordpress.localhost where you will be greeted (if this is the first time running) with a page asking you to install wordpress.
 
 ## Key Points
 The following node in the wordpress service of Docker Compose resolves failing WordPress Site Health tests which make loopback requests to localhost inside the Docker wordpress service instead of localhost on the host and therefore through the reverse proxy.
-```
-extra_hosts:
-- wordpress.localhost:172.17.0.1
-```
+
+    extra_hosts:
+    - wordpress.localhost:172.17.0.1
 
 In the Nginx proxy pass directive, 'wordpress' refers to the name of your wordpress service in your docker-compose.yml file:
-```
-proxy_pass http://wordpress;
-```
+
+    proxy_pass http://wordpress;
 
 The following Nginx directive configures WordPress behind a reverse proxy:
-```
-proxy_set_header      X-Forwarded-Proto https;
-```
+
+    proxy_set_header    X-Forwarded-Proto https;
+
 
 The following conditional in your `wp-config.php` references the Nginx `X-Forwarded-Proto` header above so WordPress can determine SSL requests behind a reverse proxy, see the official WordPress codex for more information.
-```
-if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+
+    if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
         $_SERVER['HTTPS'] = 'on';
-}
-```
+    }
