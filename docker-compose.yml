@@ -2,7 +2,7 @@ name: lemp
 
 services:
   mariadb:
-    image: mariadb:11.1.2-jammy
+    image: mariadb:11.2.3-jammy
     container_name: mariadb
     restart: always
     expose:
@@ -20,7 +20,7 @@ services:
   wordpress:
     depends_on:
       - mariadb
-    image: wordpress:6.3.1-php8.0
+    image: wordpress:6.4.1-php8.0
     container_name: wordpress
     restart: unless-stopped
     expose:
