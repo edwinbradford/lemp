@@ -20,14 +20,14 @@ services:
   wordpress:
     depends_on:
       - mariadb
-    image: wordpress:6.4.1-php8.0
+    image: wordpress:6.4.1-php8.1
     container_name: wordpress
     restart: unless-stopped
     expose:
       - 80
       - 443
     extra_hosts:
-      - wordpress.localhost:172.17.0.1
+      - wordpress.local:172.17.0.1
     environment:
       WORDPRESS_DB_HOST: mariadb
       WORDPRESS_DB_USER: wpress
