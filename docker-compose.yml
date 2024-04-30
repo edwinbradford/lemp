@@ -20,7 +20,7 @@ services:
   wordpress:
     depends_on:
       - mariadb
-    image: wordpress:6.4.1-php8.1
+    image: wordpress:6.5.2-php8.1
     container_name: wordpress
     restart: unless-stopped
     expose:
