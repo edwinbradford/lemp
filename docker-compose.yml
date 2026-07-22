@@ -51,8 +51,8 @@ services:
       - 443:443
     volumes:
       - ./nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
-      - ./nginx/ssl/my_wpress_site.crt:/etc/nginx/my_wpress_site.crt
-      - ./nginx/ssl/my_wpress_site.key:/etc/nginx/my_wpress_site.key
+      - ./nginx/ssl/wordpress.crt:/etc/nginx/wordpress.crt
+      - ./nginx/ssl/wordpress.key:/etc/nginx/wordpress.key
       - /var/log/nginx:/var/log/nginx
     networks:
       - nginx
@@ -64,4 +64,3 @@ volumes:
 networks:
   nginx:
     name: nginx
-
